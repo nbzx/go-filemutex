@@ -18,7 +18,7 @@ func TestLockUnlock(t *testing.T) {
 	m, err := New(path)
 	require.NoError(t, err)
 
-	err = m.Lock()
+	err = m.Lock(false)
 	require.NoError(t, err)
 	err = m.Unlock()
 	require.NoError(t, err)
@@ -48,7 +48,7 @@ func TestClose(t *testing.T) {
 	m, err := New(path)
 	require.NoError(t, err)
 
-	m.Lock()
+	m.Lock(false)
 	m.Close()
 }
 
@@ -66,14 +66,14 @@ func TestLockErrorsAreRecoverable(t *testing.T) {
 	m.fd = 99999
 
 	// trigger an error
-	err = m.Lock()
+	err = m.Lock(false)
 	require.Error(t, err)
 
 	// restore a sane internal state
 	m.fd = oldfd
 
 	// this would hang if we hadn't Unlock()ed in the Lock error branch
-	err = m.Lock()
+	err = m.Lock(false)
 	require.NoError(t, err)
 
 	// clean up
@@ -90,7 +90,7 @@ func TestUnlockErrorsAreRecoverable(t *testing.T) {
 	m, err := New(path)
 	require.NoError(t, err)
 
-	err = m.Lock()
+	err = m.Lock(false)
 	require.NoError(t, err)
 
 	// muck with the internal state in order to cause an error
@@ -130,7 +130,7 @@ func TestRLockErrorsAreRecoverable(t *testing.T) {
 	m.fd = oldfd
 
 	// this would hang if we hadn't Unlock()ed in the RLock error branch
-	err = m.Lock()
+	err = m.Lock(false)
 	require.NoError(t, err)
 
 	// clean up
