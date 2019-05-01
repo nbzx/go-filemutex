@@ -28,8 +28,19 @@ func New(filename string) (*FileMutex, error) {
 	return &FileMutex{fd: fd}, nil
 }
 
-func (m *FileMutex) Lock() error {
-	if err := syscall.Flock(m.fd, syscall.LOCK_EX); err != nil {
+//func (m *FileMutex) Lock() error {
+//	if err := syscall.Flock(m.fd, syscall.LOCK_EX); err != nil {
+//		return err
+//	}
+//	return nil
+//}
+
+func (m *FileMutex) Lock(isBlock bool) error {
+	param := syscall.LOCK_EX | syscall.LOCK_NB
+	if isBlock {
+		param = syscall.LOCK_EX
+	}
+	if err := syscall.Flock(m.fd, param); err != nil {
 		return err
 	}
 	return nil

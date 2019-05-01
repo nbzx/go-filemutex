@@ -16,6 +16,8 @@ var (
 )
 
 const (
+	LOCKFILE_FAIL_IMMEDIATELY = 1
+	LOCKFILE_EXCLUSIVE_LOCK = 2
 	lockfileExclusiveLock = 2
 )
 
@@ -58,9 +60,14 @@ func New(filename string) (*FileMutex, error) {
 	return &FileMutex{fd: fd}, nil
 }
 
-func (m *FileMutex) Lock() error {
+func (m *FileMutex) Lock(isBlock bool) error {
 	var ol syscall.Overlapped
-	if err := lockFileEx(m.fd, lockfileExclusiveLock, 0, 1, 0, &ol); err != nil {
+	var param uint32
+	param = lockfileExclusiveLock | LOCKFILE_FAIL_IMMEDIATELY
+	if isBlock {
+		param = lockfileExclusiveLock
+	}
+	if err := lockFileEx(m.fd, param, 0, 1, 0, &ol); err != nil {
 		return err
 	}
 	return nil
